@@ -12,6 +12,7 @@ const path = require("path");
 const request = require("request");
 const should = require("should");
 const util = require("util");
+const fetch = require("node-fetch");
 
 const S3rver = require("../lib");
 
@@ -66,7 +67,7 @@ describe("S3rver Tests", function() {
     s3rver = new S3rver({
       port: 4569,
       hostname: "localhost",
-      silent: true
+      silent: false
     }).run((err, hostname, port) => {
       if (err) return done("Error starting server", err);
 
@@ -313,6 +314,30 @@ describe("S3rver Tests", function() {
         done();
       });
     });
+  });
+
+  it("should support presigned urls", function(done) {
+    const s3Params = {
+      Bucket: buckets[0],
+      Key: "some-file.jpeg",
+      ContentType: "image/jpeg"
+    };
+
+    const signedUrl = s3Client.getSignedUrl("putObject", s3Params);
+
+    fetch(signedUrl, {
+      method: `PUT`,
+      body: fs.createReadStream(path.join(__dirname, "resources/image.jpg"))
+    })
+      .then(() =>
+        s3Client
+          .getObject({ Bucket: buckets[0], Key: "some-file.jpeg" })
+          .promise()
+      )
+      .then(() => {
+        done();
+      })
+      .catch(done);
   });
 
   it("should store a gzip encoded file in bucket", function(done) {
