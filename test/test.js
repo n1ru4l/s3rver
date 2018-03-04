@@ -67,7 +67,7 @@ describe("S3rver Tests", function() {
     s3rver = new S3rver({
       port: 4569,
       hostname: "localhost",
-      silent: false
+      silent: true
     }).run((err, hostname, port) => {
       if (err) return done("Error starting server", err);
 
