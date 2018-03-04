@@ -334,7 +334,8 @@ describe("S3rver Tests", function() {
           .getObject({ Bucket: buckets[0], Key: "some-file.jpeg" })
           .promise()
       )
-      .then(() => {
+      .then((data) => {
+        data.ContentType.should.equal("image/jpeg")
         done();
       })
       .catch(done);
